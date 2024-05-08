@@ -37,7 +37,8 @@ physical network, it returns to the transport layer and then passes to the appli
         - The packet travels mostly through IPv6 networks but is finally delivered to a host that uses IPv4
 - global unicast block : main block used for unicast communication between hosts in the Internet.
 - Unique Local Unicast Blockblocks in the IPv4 address space were reserved for private addressing. IPv6 uses two large blocks for private addressing: one at the site level and one at the link level.
-- site level unique local unicast  block : block identifier 1111 110,next bit can be 0 or 1 , next 40 bits are selectd randomly by site.. they are not routable on public internet (only within site or organisation). meant for internal communication within sites network and meant to be globally unique.can have subnet id
+- site level unique local unicast  block : block identifier 1111 110,next bit can be 0 or 1 , next 40 bits are selectd randomly by site.. they are not routable on public internet (only within site or organisation). meant for internal communication within sites network and meant to be globally unique can have subnet id
+
 ![](./images/Pasted%20image%2020240501173223.png)
 - link local block : has the block identifier 1111 1110 10. The next 54 bits are set to zero. The last 64 bits can be changed to define the interface for each computer.they have smaller scope and are limited to single network segment or link(not routable beyond local link). they dont hv subnet id as only within single local link
 ![](./images/Pasted%20image%2020240501173248.png)
