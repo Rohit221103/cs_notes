@@ -1,24 +1,3 @@
-doubts :
-- which layer is rdt implemented in 
-- what is advantage of rdt2.2 over 2.1 (rst 2.2 no need to send NAK so only 1 type of ack packet instead of 2 so lesser overhead )
-- gbn fsm
-
-
-# cn doubts
-- ![[Pasted image 20240427214749.png]]
-doesnt this mean 2nd segment is lost![[Pasted image 20240427214810.png]]
-
-soln :
-if the receiver detects 
-![[Pasted image 20240427215246.png]]
-
-- in selective repeat only particular out of order packet retransmitted , and also out of order pakcet can be buffered , in go back n all n packets retransmitted
-- in fast retrasmit as multiple cum acks sent so pakcet lost so retransmit
-
-skipped 
-- congesstion control 3.7
-- checkfast recovery page 316,317
-
 #  TCP CONGESTION CONTROL 
 tcp congestion control 
 - slow start , congestion avoidance and fast recovery
