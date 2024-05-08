@@ -16,9 +16,8 @@ length. Two bytes in hexadecimal notation require four hexadecimal digits
 
 ## adress space allocation
 ![](./images/Pasted%20image%2020240501123216.png)
-
-![[Pasted image 20240501123637.png]]
-![[Pasted image 20240501123943.png]]
+![](./images/Pasted%20image%2020240501123637.png)
+![](./images/Pasted%20image%2020240501123943.png)
 basicaly : 
 - global unicast prefix : 001  (/3)
 - unique local unicast prefix is 1111 110 (/7)
@@ -39,34 +38,34 @@ physical network, it returns to the transport layer and then passes to the appli
 - global unicast block : main block used for unicast communication between hosts in the Internet.
 - Unique Local Unicast Blockblocks in the IPv4 address space were reserved for private addressing. IPv6 uses two large blocks for private addressing: one at the site level and one at the link level.
 - site level unique local unicast  block : block identifier 1111 110,next bit can be 0 or 1 , next 40 bits are selectd randomly by site.. they are not routable on public internet (only within site or organisation). meant for internal communication within sites network and meant to be globally unique.can have subnet id
-![[Pasted image 20240501173223.png]]
+![](./images/Pasted%20image%2020240501173223.png)
 
 - link local block : has the block identifier 1111 1110 10. The next 54 bits are set to zero. The last 64 bits can be changed to define the interface for each computer.they have smaller scope and are limited to single network segment or link(not routable beyond local link). they dont hv subnet id as only within single local link
-![[Pasted image 20240501173248.png]]
+![](./images/Pasted%20image%2020240501173248.png)
 - multicast block :used to define groups of hosts instead of one.permenant group means can be accessed all the time while transient is temporary
-![[Pasted image 20240501173529.png]]
+![](Pasted%20image%2020240501173529.png)
 
 - global unicast : 
    - CIDR : 2000::/3 (as prefix is 001)
-   - ![[Pasted image 20240501174004.png]]
+   - ![](./images/Pasted%20image%2020240501174004.png)
    - global routing prefix : used to route the packet through the Internet to the organization site such as ISP that owns the block , up to 2^45 (48-3)sites  (ISP's or private organisation)
    - subnet identifier : 2&16 subnets possible
    - interace identifier : 
       - defines interface.
       - physical adress is 48 bits while interface is 64 bits so physical address whose \ can be embedded as the whole or part of the interface identifier, eliminating the mapping process
       - two common physical adressing scheme : 64-bit extended unique identifier (EUI-64) defined by IEEE and the 48-bit physical address defined by Ethernet.
-      - ![[Pasted image 20240501182109.png]]
+      - ![](./images/Pasted%20image%2020240501182109.png)
       - mapping for eui 64 means to convert 64 bit physical adres to interface adress to be embeeded in ipv6 datagram
       - mapping for ethernet mac means to convert 48 bit mac adress to 64 bit interface adress to be embedded inside ipv6 datagram
 
 ## ipv6 protocol 
 - advantages of ipv6 over ipv4
 - The base header occupies 40 bytes, whereas the extension headers and data from the upper layer contain up to 65,535 bytes of information
-![[Pasted image 20240501182357.png]]
+![](./images/Pasted%20image%2020240501182357.png)
 - datagram
-![[Pasted image 20240501182642.png]]
+![](Pasted%20image%2020240501182642.png]]
 - packet format 
-![[Pasted image 20240501182657.png]]
+![](./images/Pasted%20image%2020240501182657.png)
 - version indicates ipv4 or 6
 - traffic class is similar to type of service in ipv4 (like realtime or non real time ,ECN)
 - flow label : 
@@ -78,35 +77,35 @@ physical network, it returns to the transport layer and then passes to the appli
     - If a host does not support the flow label, it sets this field to zero. If a router does not support the flow label, it simply ignores it.
     - All packets belonging to the same flow have the same source, same destination,same priority, and same options.
 - next header :defines header following base header . The next header is either one of the optional extension headers used by IP or the header of an encapsulated packet such as UDP or TCP. Each extension header also contains this field
-![[Pasted image 20240501191318.png]]
+  [](./images/Pasted%20image%2020240501191318.png)
 - hop limit : like ttl
 - extension header(inside next header):
-![[Pasted image 20240501193603.png]]
+![](./images/Pasted%20image%2020240501193603.png)
  - hop by hop : used when the source needs to pass information to all routers visited by the datagram like debugging information, or if length > 65535 , routers must have this information
      - 3 types of hop by hop options : - pad1,padN,jumbo payload
      - pad1 : 1 byte long and used for alignment purpose , i.e some options need to start at specific bit of 32 bit word , so if option falls short of this alignment pad1 is added.((action is 00, the change bit is 0, and type is 00000)
      - padn : The difference is that PadN is used when n or more bytes are needed for alignment (action is 00, the change bit is 0, and type is 00001)).option length contains number of padding bytes
      - jumbo payload  : the length of the payload in the IP datagram can be a maximum of 65,535 bytes. However, if for any reason a longer payload is required, we can use the jumbo payload option to define this longer length.it starts at 4n+2 byte always from beginning of extension header
-![[Pasted image 20240501200027.png]]
+![](./images/Pasted%20image%2020240501200027.png)
 
 - destination option  : when source needs to pass information to destination.intermediate routers are not permitted to access it same format as hop by hop
 - source routing : 
-![[Pasted image 20240501200141.png]]
+![](./images/Pasted%20image%2020240501200141.png)
    - The type field defines loose or strict routing. 
    - The addresses left field indicates the number of hops still needed to reach the destination. 
    - The strict/loose mask field determines the rigidity of routing. If set to strict, routing must follow exactly as indicated by the source. If, instead, the mask is loose, other routers may be visited in addition to those in the header 
 - fragmentation : in ipv4 , source or router could fragment here only source can fragment.A source must use a Path MTU Discovery technique to find the smallest MTU supported by any network on the path. If the source does not use a Path MTU Discovery technique, it fragments the datagram to a size of 1,280 bytes or smaller.
-- ![[Pasted image 20240501200536.png]]
+- ![](./images/Pasted%20image%2020240501200536.png)
 - authentication  field:used to check if sender is genuine and integrety / comprimisation of payload(if payload corrupted by hacker).The sender passes a 128-bit security key, the entire IP datagram, and the 128-bit security key again to the algorithm.reciever takes the secret key and the received datagram (again, with changeable fields set to zero) and passes them to the authentication algorithm. If the result matches that in the authentication data field, the IP datagram is authentic; otherwise, the datagram is discarded.
-- ![[Pasted image 20240501200712.png]]
+- ![](./images/Pasted%20image%2020240501200712.png)
 - enccypted securirty payload : The security parameter index field is a 32-bit word that defines the type of encryption/decryption used. The other field contains the encrypted data along with any extra parameters needed by the algorithm
-![[Pasted image 20240501200943.png]]
+![](./images/Pasted%20image%2020240501200943.png)
 
 
 ### Transition from IPV4 to IPV6
-![[Pasted image 20240501204613.png]]
+![](./images/Pasted%20image%2020240501204613.png)
 - dual stack 
-![[Pasted image 20240501204712.png]]
+![](./images/Pasted%20image%2020240501204712.png)
 - tunneling : when two computers using IPv6 want to communicate with each other and the packet must pass through a region that uses IPv4. To pass through this region, the packet must have an IPv4 address. So the IPv6 packet is encapsulated in an IPv4 packet when it enters the region, and it leaves its capsule when it exits the region
 - header translation : he sender wants to use IPv6, but the receiver does not understand IPv6.tunneling cannot happen as header needs to be translated .rules for transforming ipv6 packet header to ipv4
      - The IPv6 mapped address is changed to an IPv4 address by extracting the right-most 32 bits
@@ -125,7 +124,7 @@ physical network, it returns to the transport layer and then passes to the appli
 - ICMP messages have a type and a code field, and contain the header and the first 8 bytes of the IP datagram that caused the ICMP message to be generated in the first place
 - ping program sends an ICMP type 8 code 0 message to the specified host. The destination host, seeing the echo request, sends back a type 0 code 0 ICMP echo reply
 - source quench message. This message is  used  to perform congestion control—to allow a congested router to send an ICMP source quench message to a host to force that host to reduce its transmission rate
-- ![[Pasted image 20240501210626.png]]
+- ![](./images/Pasted%20image%2020240501210626.png)
 - traceroute using ICMP : Traceroute in the source sends a series of ordinary IP datagrams to the destination.each datagram is udp segment with unlikely port number and each datagram have TTL  of 1,2,.. and so on.when nth TTL of packet expires , nth router discards it and sends sends an ICMP warning message to the source (type 11 code 0). This warning message includes the name of the router and its IP address.This way we get intermediate router adress.at some point some datagram will reach destination but udp port number is unlikely (it sends ) so it sends  unreachable ICMP message (type 3 code 3) back to the source. When the source host receives this particular ICMP message, it knows it does not need to send additional probe packets.
 
 ## ROUTING ALGORITHMS : 
@@ -167,8 +166,8 @@ least path cost to w plus cost from w to v */
 15 until N’= N
 ```
 - ex :
-![[Pasted image 20240501213617.png]]
-![[Pasted image 20240501214225.png]]
+![](./images/Pasted%20image%2020240501213617.png)
+![](./images/Pasted%20image%2020240501214225.png)
 - In the first iteration, we need to search through all n nodes to determine the node, w, not in N′ that has the minimum cost. In the second iteration, we need to check n−1 nodes to determine the minimum cost; in the third iteration n−2 nodes, and so on. Overall, the total number of nodes we need to search through over all the iterations is n(n+1)/2, and thus we say that the preceding implementation of the LS algorithm has worst-case complexity of order n squared: O(n 2 ).
 - Oscillations with congestion-sensitive routing 
 - a solution is to ensure that not all routers run the LS algorithm at the same time.
@@ -190,7 +189,7 @@ read from 6.4
 - for the most part the link layer is implemented in a network adapter, also sometimes known as a network interface card (NIC), while for a router it is implemented in router’s line card.much of the link layer functionality is impemented in hardware
 - intels 710 adapter implements ethernet protocol, Atheros AR5006 implements 802.11 WiFi protocol
 - network adapters are being integrated onto the host’s motherboar- a so-called LAN-on-motherboard configuration.
-![[Pasted image 20240505121330.png]]
+![](./images/Pasted%20image%2020240505121330.png)
 - while most of link layer is in hardware, the software component of link layer  implement higher-level link-layer functionality such as assembling link-layer addressing information and activating the controller hardware while on receiving side, link-layer software responds to cotroller interrupts (e.g., due to the receipt of one or more frames), handling error conditions and passing a datagram up to the network layer.
 
 
@@ -199,7 +198,7 @@ read from 6.4
 - parity check : 
     - single dimensional parity : check if a row of bits has even number of 1's, if so parity bit is set to 0 else set to 1 (to preserve even parity). to detect erros check if that data + parity has even no of 1's , if it does no error else error.Note that if even number of bit erros occurs it goes undetected
     - two dimensional parity : here parity bit is generated both row wise and column wise in a similar manner as single dimensional parity(add row parity bit = 1 if row has odd no of 1,s and add column parity =1 if column has odd no of 1's to preserve even number of 1's) . In this case receiver can thus not only detect the fact that a single bit error has occurred, but can use the column and row indices of the column and row with parity errors to actually identify the bit that was corrupted and correct that error
-     ![[Pasted image 20240505123054.png]]
+     ![](./images/Pasted%20image%2020240505123054.png)
     - The ability of the receiver to both detect and correct errors is known as forward error correction (FEC).FEC techniques are valuable because they can decrease the number of sender retransmissions require.In network they can be used by themselves or in conjunction with ARQ (automatic repeat request like stop and wait or go back N ARQ) in data link layer
 
 - checksumming :
@@ -209,7 +208,7 @@ read from 6.4
 	- other protocol like XTP, one checksum is computed over the header and another checksum is computed over the entire packet.
 	- Because transport-layer error detection is implemented in software, it is important to have a simple and fast error-detection scheme such as checksumming. On the other hand, error detection at the link layer is implemented in dedicated hardware in adapters, which can rapidly perform the more complex CRC operations
 - cyclic redudancy check (CRC) : 
-	 -   ![[Pasted image 20240505124313.png]]
+	 -   ![](./images/Pasted%20image%2020240505124313.png)
 	 - CRC codes are also known as polynomial codes, since it is possible to view the bit string to be sent as a polynomial whose coefficients are the 0 and 1 values in the bit string
 	 - say that sending node wants to send D bit data to the receiving node.The sender and reciever first agree on an r+1 bit pattern, known as a generator , which we will denote as G.For a given piece of data, D, the sender will choose r additional bits, R, and append them to D such that the resulting D+R bit pattern (interpreted as a binary number) is exactly divisible by G (i.e., has no remainder) using modulo-2 arithmetic. 
 	 - The process of error checking with CRCs is thus simple: The receiver divides the D+R received bits by G. If the remainder is nonzero, the receiver knows that an error has occurred; otherwise the data is accepted as being correct.
@@ -266,7 +265,7 @@ read from 6.4
 	 - if say 1 node transmits (prob is p), N-1 dont transmit (1-p probablity for not transmit for each node).Therefore probabiliity one node has success is is 1x(p) x (N-1)(1−p) .probability that any one of the N nodes has a success is Np(1−p)N−1 .
 	 - By finding p that maximises the equation we ll find that max efficiency is 0.37(1/e)
 	 - That is, when a large number of nodes have many frames to transmit,then (at best) only 37 percent of the slots do useful work. Thus the effective transmission rate of the channel is not R bps but only 0.37 R bps
-![[Pasted image 20240507003703.png]]
+![](./images/Pasted%20image%2020240507003703.png)
 - ALOHA 
 	 - this is exactly same as slotted ALOHA except the fact that it is unsloted.Here If a transmitted frame experiences a collision the node will then immediately  retransmit the frame with probability p, otherwise waits for a frame transmission time 
 	 - only difference between this and slotted aloha is that it doesnt hv slots to synchronise nodes 
@@ -335,7 +334,7 @@ read from 6.4
 - The receiving adapter receives the frame from the physical layer, extracts the IP datagram, and passes the IP datagram to the network layer
 - hub is a physical-layer device that acts on individual bits rather than frames. When a bit, representing a zero or a one, arrives from one interface, the hub simply re- creates the bit, boosts its energy strength, and transmits the bit onto all the other interfaces.Ethernet with a hub-based star topology is also a broadcast LAN
 - ethernet was original;y bus-topology designs using coaxial cable
-- ![[Pasted image 20240507194322.png]]
+- ![](./images/Pasted%20image%2020240507194322.png)
 - 6 fields of ethernet are
     - data field :  MTU of ethernet is 1500 bytes f the IP datagram exceeds 1,500 bytes, then the host has to fragment the datagram. the minimum size of the data field is 46 bytes. This means that if the IP datagram is less than 46 bytes, the data field has to be “stuffed” to fill it out to 46 bytes.network layer uses the length field in the IP datagram header to remove the stuffing. 
     - destination MAC address : when receiving adapter received ethernet frame where destination MAC address matches itself, it passes to upper layer (i.e network layer) otherwise it discards it
@@ -366,25 +365,25 @@ read from 6.4
 - routers provide a more robust isolation of traffic, control broadcast storms, and use more “intelligent” routes among the hosts in the network as compared to switches but have larger per-packet processing time than switches, because they have to process up through the layer-3 fields and are not plug and play
 
 ### VLAN (Virtual local area network)
-- this is how typical hierarchical network looks like ![[Pasted image 20240507235916.png]]
+- this is how typical hierarchical network looks like ![](./images/Pasted%20image%2020240507235916.png)
 - disadvantages of the above are :
 	 - lack of traffic isolation : Although the hierarchy localizes group traffic to within a single switch, broadcast traffic must still traverse the entire institutional network.This is undesirable for privacy reasons , ex : if one group has companys exec management team n and other group are employees running snifferes , then it is not desirable for executives' traffic to reach employee network
 	 - inneficient use of switches
 	 - managing users : an employee moves between groups, the physical cabling must be changed to connect the employee to a different switch
 - instead of hierarchical networking we can use VLAN where port-based VLAN, the switch’s ports (interfaces) are divided into groups by the network manager. Each group constitutes a VLAN, with the ports in each VLAN forming a broadcast domain (i.e., broadcast traffic from one port can only reach other ports in the group).4
-- if one user wants to switch from one department to another dept then network operator simply reconfigures the VLAN software to reassign the port no
-![[Pasted image 20240508000439.png]]
+- =if one user wants to switch from one department to another dept then network operator simply reconfigures the VLAN software to reassign the port no
+![](./images/Pasted%20image%2020240508000439.png)
 - a more scalable way to interconnect VLAN switches is called VLAN trunking.a special port on each switch  is configured as a trunk port to interconnect the two VLAN switches. The trunk port belongs to all VLANs, and frames sent to any VLAN are forwarded over the trunk link to the other switch
 - The IEEE has defined an extended Ethernet frame format, 802.1Q, for frames crossing a VLAN trunk with a four-byte VLAN tag added into the header that carries the identity of the VLAN to which the frame belongs
 - VLAN tag is added into a frame by the switch at the sending side of a VLAN trunk, parsed, and removed by the switch at the receiving side of the trunk.
 - VLAN tag itself consists of a 2-byte Tag Protocol Identifier (TPID) field (with a fixed hexadecimal value of 81-00), a 2-byte Tag Control Information field that contains a 12-bit VLAN identifier field, and a 3-bit priority field that is similar in intent to the IP datagram TOS field.
-![[Pasted image 20240508001411.png]]
+![](./images/Pasted%20image%2020240508001411.png)
 
 	note : BGP(Border Gateway Protocol) is an exterior gateway protocol, meaning it operates between different autonomous systems. It's responsible for exchanging routing information and establishing paths for data packets to flow between these independent networks.
 
 section 6.7 day in life of web page request is omited as we know it 
 
-![[Pasted image 20240508003231.png]]
+![](./images/Pasted%20image%2020240508003231.png)
 
 ### WiFi: 802.11 Wireless LANs
 - IEEE 802.11 wireless LAN, also known as WiFi , all use the same medium access protocol, CSMA/CA
@@ -393,7 +392,7 @@ section 6.7 day in life of web page request is omited as we know it
 - 802.11ac may use may transmit to multiple stations simultaneously, and use “smart” antennas to adaptively beamform to target transmissions in the direction of a receiver. This decreases interference and increases the distance reached at a given data rate
 
 ## 802.11 Architecture 
-![[Pasted image 20240508011246.png]]
+![](./images/Pasted%20image%2020240508011246.png)
 - above picture is an infrastruction network, as opposed to ad hoc networks which only connect to each other and dont have an access point
 - fundamental block is basic service set (BSS). A BSS contains one or more wireless stations and a central base station, known as an access point (AP)
 - note : Acess point is link layer device , so it only understands MAC address and not IP address
@@ -408,7 +407,7 @@ section 6.7 day in life of web page request is omited as we know it
 - The 802.11 standard requires that an AP periodically send beacon frames, each of which includes theAP’s SSID and MAC address. Your wireless device, knowing that APs are sending out beacon frames, scans the 11 channels, seeking beacon frames from any APs that may be out there.this is called passive scanning
 - A wireless device can also perform active scanning , by broadcasting a probe frame that will be received by all APs within the wireless device’s range,device choses AP to associate with ,sends an association request frame to the AP, and the AP responds with an association response frame.
 - authentication done on separate server
-![[Pasted image 20240508011223.png]]
+![](./images/Pasted%20image%2020240508011223.png)
 
 
 ### 802.11 MAC PROTOCOL
@@ -435,7 +434,7 @@ section 6.7 day in life of web page request is omited as we know it
     - In practice, each wireless station can set an RTS threshold such that the RTS/CTS sequence is used only when the frame is longer than the thresh
 
 ### IEEE 802.11 FRAME 
-![[Pasted image 20240508101937.png]]
+![](./images/Pasted%20image%2020240508101937.png)
 - payload and CRC : payload, which typically consists of an IP datagram or an ARP packet. Although the field is permitted to be as long as 2,312 bytes, it is typically fewer than 1,500 bytes . 802.11 frame includes 32 bit CRC
 - Adress fields : 
     - address 2 : MAC address of the station that transmits the frame
