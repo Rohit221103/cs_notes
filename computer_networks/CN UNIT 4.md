@@ -15,7 +15,7 @@ length. Two bytes in hexadecimal notation require four hexadecimal digits
      - ipv6 doesnt define broadcasting
 
 ## adress space allocation
-![](./images/'Pasted image 20240501123216.png')
+![](./images/Pasted%20image%2020240501123216.png)
 
 ![[Pasted image 20240501123637.png]]
 ![[Pasted image 20240501123943.png]]
