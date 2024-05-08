@@ -125,6 +125,7 @@ tcp splitting :
      - it is non blocking unless 2 packets from different ports forwarded to same output port , then one will have to wait
      - CISCO 1200 uses interconnection network while CISCO 7600 can be configured as bus or interconnection
      - Cisco CRS employs a three-stage non-blocking switching strategy.
+
   ![](./images/Pasted%20image%2020240501100335.png)
 
 
