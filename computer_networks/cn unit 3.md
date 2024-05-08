@@ -1,11 +1,8 @@
 #  TCP CONGESTION CONTROL 
 tcp congestion control 
 - slow start , congestion avoidance and fast recovery
-
-MSS is without TCP header 
-
-
-slow start  vs congestion avoidance : cwnd is increased by 1 MSS every time transmitted segment acknowledged but in CA  it is increased by 1 MSS every rtt (1 rtt has `cwnd` no of packets)
+- MSS is without TCP header 
+- slow start  vs congestion avoidance : cwnd is increased by 1 MSS every time transmitted segment acknowledged but in CA  it is increased by 1 MSS every rtt (1 rtt has `cwnd` no of packets)
 ## slow start : 
 - Thus, in the slow-start state, the value of cwnd begins at 1
 MSS and increases by 1 MSS every time a transmitted segment is first acknowledged
@@ -35,16 +32,16 @@ note :
  - earlier  version of TCP, known as TCP Tahoe, unconditionally cut its congestion window to 1 MSS and entered the slow-start phase after either a timeout-indicated or triple-duplicate-ACK-indicated loss event.
  - The newer version of TCP, TCP Reno, incorporated fast recovery.
  
-![[Pasted image 20240430220338.png]]
+![](./images/Pasted%20image%2020240430220338.png)
 
-![[Pasted image 20240430223811.png]]
+![](./images/Pasted%20image%2020240430223811.png)
 note how in an above graph, in fast recovery(reno), cwnd = 1/2 x 12 =6 +3 =9(as triple duplicate neeed to retransmitted)
 
 #### other points :
 - ignoring slow start , we see that TCP congestion control increases `cwnd` by 1 for every RTT (congn avoidance) and havles `cwnd` for triple duplicat ACK, so its called AIMD (additive increase multiplicative decrease)
 - this is a sort of probing behaviour by tcp (increases window til loss occurs , when loss ocurs , half it nd start increasing again)
 - saw tooth behaviour graph exhibited by AIMD 
-![[Pasted image 20240430224300.png]]
+![](./images/Pasted%20image%2020240430224300.png)
  - TCP Vegas :
      - (1) detect congestion in the routers between source and destination before packet loss occurs, and
      - (2) lower the rate linearly when this imminent packet loss is detected.
@@ -71,7 +68,7 @@ tcp splitting :
 - A second setting of the ECN bits is used by the sending host to inform routers that the sender and receiver are ECN-capable, and thus capable of taking action in response to ECN-indicated network congestion.
 - when the TCP in the receiving host receives an ECN congestion indication via received datagram, the TCP in the receiving host informs the TCP in the sending host of the congestion indication by setting the ECE (Explicit Congestion Notification Echo) bit in TCP ACK segment 
 - TCP sender reacts to ACK with with ECE  by halfing `cwnd` as it would react to a lost segment using fast retransmit, and sets the CWR (Congestion Window Reduced) bit in the header of the next transmitted TCP sender-to-receiver segment.
-![[Pasted image 20240430231013.png]]
+![](./images/Pasted%20image%2020240430231013.png)
 
 # Network layer
 - the primary role of the network control plane is to coordinate these local, per-router forwarding actions so that datagrams are ultimately transferred end-to-end, along paths of routers between source and destination host
@@ -89,7 +86,7 @@ tcp splitting :
 - Intserv is roposed service model extensions to the Internet architecture which aims to provide end-end delay guarantees and congestion-free communication
 
 # ROUTER
-![[Pasted image 20240501091500.png]]
+![](./images/Pasted%20image%2020240501091500.png)
 - input ports : It is here that the forwarding table is consulted to determine the router output port to which an arriving packet will be forwarded via the switching fabric.Control packets are forwarded from input port to routing processor. Juniper MX2020, edge router, for example, supports up to 960 10 Gbps Ethernet ports, with an overall router system capacity of 80 Tbps
 - switching fabric : connects the router’s input ports to its output ports
 - output ports : stores packets received from the switching fabric and transmits these packets on the outgoing link by performing the necessary link-layer and physical-layer functions.
@@ -128,7 +125,7 @@ tcp splitting :
      - it is non blocking unless 2 packets from different ports forwarded to same output port , then one will have to wait
      - CISCO 1200 uses interconnection network while CISCO 7600 can be configured as bus or interconnection
      - Cisco CRS employs a three-stage non-blocking switching strategy.
-    ![[Pasted image 20240501100335.png]]
+  ![](./images/Pasted%20image%2020240501100335.png)
 
 
 ## output port processing 
@@ -148,7 +145,7 @@ tcp splitting :
 ## IPV4
 ### IPV4 DATAGRAM FORMAT
 
-![[Pasted image 20240501101904.png]]
+![](./images/Pasted%20image%2020240501101904.png)
 - Version (4 bits)
 - Header legngth(4 bits): determines where in IP datagram payload is 
 - Type of Service(8 bits): to distinguish different types od datagrams like real time from non real time.also used for ECN
@@ -188,12 +185,12 @@ tcp splitting :
      - DHCP request : e newly arriving client will choose from among one or more server offers and respond to its selected offer with a DHCP request message, echoing back the configuration parameters.
      - DHCP ACK. The server responds to the DHCP request message with a DHCP ACK message , confirming the requested parameters.
 - yiaddr refers to your internet adress
-![[Pasted image 20240501112126.png]]
+![](./images/Pasted%20image%2020240501112126.png)
 
 
 ### NAT
 - network adress translation
-- ![[Pasted image 20240501113506.png]]
+- ![](./images/Pasted%20image%2020240501113506.png)
 - the NAT router behaves to the outside world as a single device with a single IP address.In essence, the NAT-enabled router is hiding the details of the home network from the outside world
 - f all datagrams arriving at the NAT router from the WAN have the same destination IP address (specifically, that of the WAN-side interface of the NAT router), then how does the router know the internal host to which it should forward a given datagram? The trick is to use a NAT translation table at the NAT router, and to include port numbers as well as IP addresses in the table entries.
 - basically a NAT makes a particular port nnumber  on WAN side for a particular combination of  ip and port number on LAN side. ex 10.0.0.1 , 3345 is 138.76.29.7 , 5001 while 10.0.0.2 , 4421 is 138.76.29.7 5004
