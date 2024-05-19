@@ -56,7 +56,7 @@
 ## PIPELINED PROTOCOLS
 - sender is allowed to send multiple packets without waiting for acknowledgment
 - sender utilisation = 
-$$ U_{\text{sender}} = \frac{\frac{nL}{R}}{RTT + \frac{L}{R}} $$
+$$U_{\text{sender}} = \frac{\frac{nL}{R}}{RTT + \frac{L}{R}}$$
 - where n is number of packets sent at once (pipelined )
 ![](./images/Pasted%20image%2020240518154733.png)
 - Two basic approaches toward pipelined error recovery can be identified: Go-Back-N and selective repeat.
@@ -114,11 +114,11 @@ acknowledged packets can be viewed as a window of size N over the range of seque
 ### ESTIMATING ROUND TRIP TIME
 - The sample RTT, denoted SampleRTT , for a segment is the amount of time between when the segment is sent (that is, passed to IP) and when an acknowledgment for the segment is received. Instead of measuring a SampleRTT for every transmitted segment, most TCP implementations take only one SampleRTT measurement at a time. That is, at any point in time, the SampleRTT is being estimated for only one of the transmitted but currently unacknowledged segments, leading to a new value of SampleRTT approximately once every RTT. Also, TCP never computes a SampleRTT for a segment that has been retransmitted;
 - due to fluctuation of SampleRTT values , TCP maintains an weighted average, called EstimatedRTT , of theSampleRTT values
-$$ EstimatedRTT=(1−α) ⋅ EstimatedRTT+α ⋅ SampleRTT $$
+$$EstimatedRTT=(1−α) ⋅ EstimatedRTT+α ⋅ SampleRTT$$
 - recommended value of α is 0.125
 - as this weighted average puts more weight on recent samples than on old samples it is called exponential weighted moving average (EWMA).
 - in addition to having an estimate of the RTT, it is also valuable to have a measure of the variability of the RTT. [RFC 6298] defines the RTT variation, DevRTT , as an estimate of how much SampleRTT typically deviates from EstimatedRTT :
-$$ DevRTT=(1−β) ⋅ DevRTT+β ⋅ |SampleRTT−EstimatedRTT| $$
+$$DevRTT=(1−β) ⋅ DevRTT+β ⋅ |SampleRTT−EstimatedRTT|$$
 - The recommended value of β is 0.25.
 $$TimeoutInterval=EstimatedRTT+4 ⋅ DevRTT$$
 - intial timeout of 1s is used.when timeout occurs , timeout interval is doubled , however when as soon as a segment is received and EstimatedRTT is updated, the TimeoutInterval is again computed using the formula above.
