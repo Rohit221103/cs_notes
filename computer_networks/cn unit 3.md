@@ -1,3 +1,166 @@
+# reliable data transfer
+
+## RDT 1.0
+![](./images/Pasted%20image%2020240517191548.png)
+- sending side
+	- `rdt_send(data)` event : accepts data from the upper layer via the rdt_send(data) event,
+	- `make_pkt(data)` action : creates a packet containing data
+	- `udt_send(packet)` action : sends packet into the channel
+- receiving side 
+	- `rdt_rcv(packet)` event : On the receiving side, rdt receives a packet from the underlying channel
+	- `extract(packet,data)` action : removes/extracts data from the packet
+	- `deliver data` action : passes the data to upper layer
+- the only consideration taken here is that the channel is completely unreliable 
+
+## RDT 2.0
+- consideration : channel with bit errors (all packets are received in the order they are sent but packets may be corrupted ), uses checksum to mitigate errors along with `ACK` and `NACK`
+- use of control messages like `ACK` and `NACK`
+	- RDT protocols based on retransmission with use of `ACK `and `NACK` are `ARQ(Automatic Repeat reQuest)` protocols
+	- 3 protocol capabilities are required in ARQ protocols to handle the presence of bit errors:
+		- `ERROR DETECTION` : using checksum ; extra bits are sent(data+checksum)
+		- `RECIEVER FEEDBACK` : 1 bit `ACKS` (1) and `NACKS` (0)
+		- `RETRANSMISSION` : packet that is received in error at the receiver will be re transmitted by the sender
+- ![](./images/Pasted%20image%2020240517192659.png)
+-  flaws
+	- not accounted for the possiblity that `ACK` and `NACK` may be corrupted(can be solved by checksum fr `ACK` in rdt 2.1)
+	- possibility of duplicates when retransmitted so receiver doesn’t know whether the ACK or NAK it last sent was received correctly at the sender.(can be solved by adding sequence number ; implemented in rdt 2.1)
+
+## RDT 2.1
+- considerations :
+	- corrupted `ACK` and `NACK` : mitigated by use of checksum for `ACK` and `NACK`
+	- duplicates due to retransmission : mitigated by use of sequence numbers 
+	- here 1 bit sequence nuber is used, so twice as many states as rdt 2.0 
+- note sender sends duplicate pckts(pckst with same seq no) if it didnt recieve `ACK` or if `ACK` has errors, so reciever knows `ACK` isnt recieved correctly and accordinly retransmits. seq number is used by sender to let the reciever know which `ACK` it has recieved correctly or not, this way reciever can know if packet received is retransmission or not
+![](./images/Pasted%20image%2020240517193426.png)
+![](./images/Pasted%20image%2020240517193442.png)
+
+
+## RDT 2.2
+- considerations
+	- sequence number for  `ACK` sent by reciever as well(rdt 2.1 had seq numm only for packets it sends)
+	- NAK free protocol :  instead of sending a NAK, we send an ACK for the last correctly received packet.A sender that receives two/duplicate ACKs for the same packet  knows that the receiver did not correctly receive the packet following the packet that is being ACKed twice.
+	- reciever includes sequence number of packet being ACKed in the ACK message it sends
+![](./images/Pasted%20image%2020240517195809.png)
+![](./images/Pasted%20image%2020240517195819.png)
+
+
+## RDT 3.0
+- consideration :
+	- underlying channel can lose packets as well, mitigated by checksumming, sequence numbers, ACK packets, and retransmissions
+	- use of timers , if packet has not been recieved during this time period , retransmit the packet
+	- note that duplicate packets means the packet is likely lost so retransmit(ex reciever recieves packet 0 twice instead of getting packet 0 packet 1 so packet 1 likely to be lost)
+- as packet sequence numbers alternate between 0 and 1, protocol rdt3.0 is sometimes known as the alternating-bit protocol .
+- it is stop and wait protocol- sender utilisation is less as senders sends the other packets only after it receives ACK for previously sent packet
+![](./images/Pasted%20image%2020240518152453.png)
+
+## PIPELINED PROTOCOLS
+- sender is allowed to send multiple packets without waiting for acknowledgment
+- sender utilisation = 
+$$ U_{\text{sender}} = \frac{\frac{nL}{R}}{RTT + \frac{L}{R}} $$
+- where n is number of packets sent at once (pipelined )
+![](./images/Pasted%20image%2020240518154733.png)
+- Two basic approaches toward pipelined error recovery can be identified: Go-Back-N and selective repeat.
+
+### Go-Back-N (GBN)
+- sender is allowed to transmit multiple packets (when available) without waiting for an acknowledgment, but is constrained to have no more than some aximum allowable number, N, of unacknowledged packets in the pipeline
+![](./images/Pasted%20image%2020240518155003.png)
+- Usable Sequence numbers are those that can be used for packets that can be sent immediately, should data arrive from the upper
+layer. 
+-  sequence numbers greater than or equal to base+N cannot be used until an
+unacknowledged packet currently in the pipeline has been acknowledged.
+- the range of permissible sequence numbers for transmitted but not yet
+acknowledged packets can be viewed as a window of size N over the range of sequence numbers. As the protocol operates, this window slides forward over the sequence number space. For this reason, N is often referred to as the window size and the GBN protocol itself as a sliding-window protocol.
+- the benefit of limiting number of outstanding, unacknowledged packets to N is to enable to efficient flow control
+- if k is number of bits in sequence number , the range of sequence numbers is 0,2^k-1 and follows modulo 2^k arithmetic
+![](./images/Pasted%20image%2020240518160504.png)
+![](./images/Pasted%20image%2020240518160518.png)
+- 3 types of events at sender side
+	- invocation from above : sender checks if window is full, if it is full it returns packet back to upper layer , or it will be buffered
+	- receipt of ACK : acknowledgment for a packet with sequence number n will be taken to be a cumulative acknowledgment, indicating that all packets with a sequence number up to and including n have been correctly received 
+	- timeout :f a timeout occurs, the sender resends all packets that have been previously sent but that have not yet been acknowledged.If an ACK is received but there are still additional transmitted but not yet acknowledged packets, the timer is restarted. If there are no outstanding, unacknowledged packets, the timer is stopped.
+- reciever side : 
+- if packet with seq. no. n is received correctly and is in order receiver sends an ACK for packet n and delivers the data portion of the packet to the upper layer. In all other cases, the receiver discards the packet and resends an ACK for the most recently received in-order packet.if packet k has been received and delivered, then all packets with a sequence number lower than k have also been delivered.
+- In GBN protocol, the receiver discards out-of-order packets. for ex if packet n is lost, both it and packet n+1 will eventually be retransmitted as a result of the GBN retransmission rule at the sender. Thus, the receiver can simply discard packet n+1.The only piece of information the receiver need maintain is the sequence number of the next in-order packet(`expectedseqnum`)
+
+## Selective repeat
+- in `GBN` single packet error can cause GBN to unnecessarily retransmit a lot of packets , resulting in reduced performance
+- selective-repeat protocols avoid unnecessary retransmissions by having the sender retransmit only those packets that it suspects were received in error (that is, were lost or corrupted) at the receiver
+- SR receiver will acknowledge a correctly received packet whether or not it is in order. Out-of-order packets are buffered until any missing packets (that is, packets with lower sequence numbers) are received, at which point a batch of packets can be delivered in order to the upper layer.
+- note the use of selective acks iunlike the cumulative acks seen in GBN
+- window size must be less than or equal to half the size of the sequence number space for SR protocols.
+![](./images/Pasted%20image%2020240519082928.png)
+![](./images/Pasted%20image%2020240519083103.png)
+
+
+# TCP
+- connection oriented,3-way handshake mechanism
+- `MSS` - Maximum segment size : max amount of data in segment (without TCP Header)
+-  `MTU` - largest link-layer frame that can be sent by the local sending host(typically 1500 bytes for ethernet)
+- `MSS` = `MTU` - TCP header size(typically 40 bytes)
+
+## TCP SEGMENT STRUCTURE 
+![](./images/Pasted%20image%2020240519084444.png)
+- options field : set when a sender and receiver negotiate MSS or as a window scaling factor for use in high-speed networks. A time-stamping option is also defined.if options field is empty then header size is 20 bytes
+- 4 bit header length
+- 6 bit flag field : 
+	- ACK indicates ACK number(he acknowledgment number that Host A puts in its segment is the sequence number of the next byte Host A is expecting from Host B).TCP provides cumulative ACKs
+	- RST,SYN AND FIN are used for tcp connection management
+	- CWR and ECE are used in explicit congestion notification
+	- Setting the PSH bit indicates that the receiver should pass the data to the upper layer
+	immediately. 
+	- Finally, the URG bit is used to indicate that there is data in this segment that the
+	sending-side upper-layer entity has marked as “urgent.” The location of the last byte of this urgent data is indicated by the 16-bit urgent data pointer field
+
+### ESTIMATING ROUND TRIP TIME
+- The sample RTT, denoted SampleRTT , for a segment is the amount of time between when the segment is sent (that is, passed to IP) and when an acknowledgment for the segment is received. Instead of measuring a SampleRTT for every transmitted segment, most TCP implementations take only one SampleRTT measurement at a time. That is, at any point in time, the SampleRTT is being estimated for only one of the transmitted but currently unacknowledged segments, leading to a new value of SampleRTT approximately once every RTT. Also, TCP never computes a SampleRTT for a segment that has been retransmitted;
+- due to fluctuation of SampleRTT values , TCP maintains an weighted average, called EstimatedRTT , of theSampleRTT values
+$$ EstimatedRTT=(1−α) ⋅ EstimatedRTT+α ⋅ SampleRTT $$
+- recommended value of α is 0.125
+- as this weighted average puts more weight on recent samples than on old samples it is called exponential weighted moving average (EWMA).
+- in addition to having an estimate of the RTT, it is also valuable to have a measure of the variability of the RTT. [RFC 6298] defines the RTT variation, DevRTT , as an estimate of how much SampleRTT typically deviates from EstimatedRTT :
+$$ DevRTT=(1−β) ⋅ DevRTT+β ⋅ |SampleRTT−EstimatedRTT| $$
+- The recommended value of β is 0.25.
+$$TimeoutInterval=EstimatedRTT+4 ⋅ DevRTT$$
+- intial timeout of 1s is used.when timeout occurs , timeout interval is doubled , however when as soon as a segment is received and EstimatedRTT is updated, the TimeoutInterval is again computed using the formula above.
+
+## rdt in tcp
+- individual timers with each pakcet result in huge timer overhead, so TCP uses only single transmission timer
+- tcp uses duplicates acks in addition to single timer
+- whenever timeout occurs tcp sets timeout to twice previous value
+- tcp fast retransmit : as timeout increases exponentially , end to end delay might increase.Fortunately, the sender can often detect packet loss well before the timeout event occurs by noting so-called duplicate ACKs. when an ACK  arrives that reacknowledges a segment for which the sender has already received an earlier acknowledgment, as cumulativ acks are used, it indicates that segments with seq number after ACK hasnt been recieved correctly ,so tcp immediately retransmits without waiting for timeout
+- thus f the TCP sender receives three duplicate ACKs for the same data, it takes this as an indication that the segment following the segment that has been ACKed three times has been lost , so TCP sender performs fast retransmit , so segment is retransmitted before timeout occurs
+- TCP's error recovery is considered a hybrid of Selective repead and go back N as , like go back n tcp uses cumulativ acks, but unlike go back n , if packet n is lost tcp only retransmits that packet and not the other packets in the window.it also buffers the out of order packets
+![](./images/Pasted%20image%2020240519090411.png)
+
+## FLOW CONTROL
+- TCP provides a flow-control service to its applications to eliminate the possibility of the sender overflowing the receiver’s buffer. Flow control is thus a speed-matching service—matching the rate at which the sender is sending against the rate at which the receiving application is reading
+- TCP provides flow control by having the sender maintain a variable called the receive window .Informally, the receive window is used to give the sender an idea of how much free buffer space is available at the receiver. Because TCP is full-duplex, the sender at each side of the connection maintains a distinct receive window.
+$$LastByteRcvd−LastByteRead≤RcvBuffer$$
+- The receive window, denoted rwnd is set to the amount of spare room in the buffer:
+$$rwnd=RcvBuffer−[LastByteRcvd−LastByteRead]$$
+- Host B tells Host A how much spare room it has in the connection buffer by placing its current value of rwnd in the receive window field of every segment it sends to A. Initially, Host B sets rwnd = RcvBuffer .
+- host A keeps track of LastByteSent and LastByteAcked.LastByteSent – LastByteAcked , is the amount of unacknowledged data that A has sent into the connection,By keeping the amount of unacknowledged data less than the value of rwnd , Host A is assured that it is not overflowing the receive buffer at Host B
+$$LastByteSent−LastByteAcked≤rwnd$$
+
+## TCP CONNECTION MANAGEMENT
+- 3 way tcp handshake 
+	- SYN : client sends a special TCP segment with no application layer data but SYN bit of flag field set to 1.client randomly chooses an initial sequence number ( client_isn ) and puts this number in the sequence number field of the initial TCP SYN segment\
+	- SYN-ACK : server extracts the TCP SYN segment from the datagram, allocates
+	the TCP buffers and variables to the connection, and sends a connection-granted segment to the client TCP.This segment has SYN and ACK bit set to 1, ACK field set to client_isn +1 and server chooses its own initial sequence number ( server_isn )and puts in seq no. field
+	- ACK : Upon receiving the SYNACK segment, the client also allocates buffers and variables to the connection.client sends server another segment which ACKs  SYNACK.in this segment SYN=0 , and this segment may carry application layer data in payload
+![](./images/Pasted%20image%2020240519092609.png)
+![](./images/Pasted%20image%2020240519092623.png)
+- if client wants to close the connection : the client TCP to send a special TCP segment to the server process with FIN =1.. When the server receives this segment, it sends the client an acknowledgment segment in return. The server then sends its own shutdown segment, which has the FIN bit set to 1. Finally, the client acknowledges the server’s shutdown segment. At this point, all the resources in the two hosts are now deallocated.
+- nmap : To explore a specific TCP port, say port 6789, on a target host, nmap will send a TCP SYN segment with destination port 6789 to that host.three possible outcomes : 
+	- source host recieves TCP SYNACK segment from the target host.,so nmap returns open
+	- The source host receives a TCP RST segment from the target host.This means that the SYN segment reached the target host, but the target host is not running an application with TCP port 6789. But the attacker at least knows that the segments destined to the host at port 6789 are not blocked by any firewall on the path between source and target hosts.
+	- The source receives nothing. This likely means that the SYN segment was blocked by an intervening firewall and never reached the target host.
+- TCP SYN FLOOD ATTACK
+	-  In this attack, the attacker(s) send a large number of TCP SYN segments, without completing the third handshake step. With this deluge of SYN segments, the server’s connection resources become exhausted as they are Allocated (but never used!) for half-open connections; legitimate clients are then denied service
+	- an effective defense known as SYN cookies [RFC 4987] are used .they work as follows :
+	- instead of creating a half-open TCP connection for this SYN, the server creates an initial TCP sequence number that is hash function of source and destination IP addresses and port numbers of the SYN segment, as well as a secret number only known to the server. This is called “cookie.
+	- if server recieves an ACK , it checks if the value of ACK field in clients SYN ACK is = orginally used hash_fn(source ip,destination ip,port nos in SYN ACK field,cookie) + 1.If this is relation is true server creates fully open connection , otherwise no harm done as server hasnt allocated any resources
+
 #  TCP CONGESTION CONTROL 
 tcp congestion control 
 - slow start , congestion avoidance and fast recovery
