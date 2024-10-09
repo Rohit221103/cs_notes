@@ -63,7 +63,7 @@ physical network, it returns to the transport layer and then passes to the appli
 - The base header occupies 40 bytes, whereas the extension headers and data from the upper layer contain up to 65,535 bytes of information
 ![](./images/Pasted%20image%2020240501182357.png)
 - datagram
-![](Pasted%20image%2020240501182642.png]]
+![](./images/Pasted%20image%2020240501182642.png)
 - packet format 
 ![](./images/Pasted%20image%2020240501182657.png)
 - version indicates ipv4 or 6
